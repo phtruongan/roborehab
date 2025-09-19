@@ -1,0 +1,69 @@
+### Install dependencies
+pip install ultralytics opencv-python numpy openai pyyaml python-dotenv
+
+
+### OpenAI API key
+This software requires your own OpenAI API key to be configured as an environment variable:
+
+Windows users (from command prompt):
+setx OPENAI_API_KEY "your-api-key-here" (then reopen your terminal)
+
+Linux users (from command prompt):
+export OPENAI_API_KEY="your-api-key-here" (then reopen your terminal)
+
+
+### Running the Software
+1. Open a terminal/command prompt in the project directory
+2. Run the analyzer:
+python squat_analyzer.py
+
+
+### During Analysis
+- The software will open a camera window showing your pose detection
+- You have 15 seconds to perform your squat(s)
+- Face your left side towards the camrera (right side does not work in this version)
+- Black dots will appear on your joints (shoulder, hip, knee, ankle) when detected
+- The system captures joint angles every other frame for analysis
+
+
+### Getting Feedback
+- After 15 seconds, the camera will close automatically
+- The AI will analyze your movement and provide feedback
+- Feedback includes:
+  - Squat depth assessment
+  - Torso positioning evaluation
+  - Movement tempo analysis
+  - Practical improvement tips
+  - Overall score (4-10 scale)
+
+## Controls
+- ESC key: Exit the program early
+- The program automatically stops after 15 seconds
+
+## Troubleshooting
+Camera not working?
+- Check if your webcam is connected and not used by other applications
+- Try changing the camera index in the code: cv2.VideoCapture(1) instead of cv2.VideoCapture(0)
+
+No pose detection?
+- Ensure you're standing with your left side toward the camera
+- Check lighting conditions
+- Make sure your full body is visible in the frame
+
+API errors?
+- Verify your OpenAI API key is set correctly
+- Check your internet connection
+- Ensure you have sufficient API credits
+
+## Tips for Best Results
+- Wear contrasting clothing against your background
+- Perform squats slowly and deliberately
+- Keep your left side clearly visible to the camera
+- Maintain good lighting throughout the session
+
+## Output
+The software provides bilingual feedback (Swedish and English) covering:
+- What you're doing well
+- Areas for improvement
+- Specific technique recommendations
+- Numerical performance score
