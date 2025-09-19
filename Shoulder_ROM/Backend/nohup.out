@@ -1,0 +1,74 @@
+./startservercommand: 1: uvicorn: not found
+Usage: uvicorn [OPTIONS] APP
+Try 'uvicorn --help' for help.
+
+Error: Got unexpected extra argument (0.0.0.0)
+INFO:     Will watch for changes in these directories: ['/home/jenna/CV-Rehab/Backend']
+INFO:     Uvicorn running on https://0.0.0.0:5555 (Press CTRL+C to quit)
+INFO:     Started reloader process [1887618] using StatReload
+Process SpawnProcess-1:
+Traceback (most recent call last):
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/site-packages/uvicorn/_subprocess.py", line 78, in subprocess_started
+    target(sockets=sockets)
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/site-packages/uvicorn/server.py", line 65, in run
+    return asyncio.run(self.serve(sockets=sockets))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/asyncio/base_events.py", line 685, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/site-packages/uvicorn/server.py", line 69, in serve
+    await self._serve(sockets)
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/site-packages/uvicorn/server.py", line 76, in _serve
+    config.load()
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/site-packages/uvicorn/config.py", line 399, in load
+    self.ssl: ssl.SSLContext | None = create_ssl_context(
+                                      ^^^^^^^^^^^^^^^^^^^
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/site-packages/uvicorn/config.py", line 112, in create_ssl_context
+    ctx.load_cert_chain(certfile, keyfile, get_password)
+ssl.SSLError: [SSL] PEM lib (_ssl.c:3917)
+INFO:     Will watch for changes in these directories: ['/home/jenna/CV-Rehab/Backend']
+INFO:     Uvicorn running on https://0.0.0.0:5555 (Press CTRL+C to quit)
+INFO:     Started reloader process [1888556] using StatReload
+Process SpawnProcess-1:
+Traceback (most recent call last):
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/site-packages/uvicorn/_subprocess.py", line 78, in subprocess_started
+    target(sockets=sockets)
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/site-packages/uvicorn/server.py", line 65, in run
+    return asyncio.run(self.serve(sockets=sockets))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/asyncio/base_events.py", line 685, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/site-packages/uvicorn/server.py", line 69, in serve
+    await self._serve(sockets)
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/site-packages/uvicorn/server.py", line 76, in _serve
+    config.load()
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/site-packages/uvicorn/config.py", line 399, in load
+    self.ssl: ssl.SSLContext | None = create_ssl_context(
+                                      ^^^^^^^^^^^^^^^^^^^
+  File "/home/jenna/anaconda3/envs/cvrehab/lib/python3.12/site-packages/uvicorn/config.py", line 112, in create_ssl_context
+    ctx.load_cert_chain(certfile, keyfile, get_password)
+ssl.SSLError: [SSL] PEM lib (_ssl.c:3917)
+INFO:     Stopping reloader process [1888556]
+INFO:     Stopping reloader process [1887618]
+./startservercommand: 1: uvicorn: not found
