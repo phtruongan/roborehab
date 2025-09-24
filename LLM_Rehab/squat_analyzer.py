@@ -24,7 +24,8 @@ def draw_joints(frame, joints):
     global angle
 
     for joint in joints:                
-        cv2.circle(frame, joint, 3, (0, 0, 0), 3)
+        if not (joint[0] == 0 and joint[1] == 0):
+            cv2.circle(frame, joint, 3, (0, 0, 0), 3)
 
     return frame
 
@@ -82,6 +83,7 @@ def get_left_joints(frame):
         
         return left_joints
 
+
 #MAIN loop
 joint_sequence = [] #For saving the joint angle time series
 frame_count = 0
@@ -113,7 +115,7 @@ while cap.isOpened():
         break
 
     #Run the software for 15 seconds
-    if time.time() - start_time >= 15:
+    if time.time() - start_time >= 30:
         print("15 seconds have gone - closing motion capture and proceeding to Movement analysys. Please wait a few seconds...")
         break
 
