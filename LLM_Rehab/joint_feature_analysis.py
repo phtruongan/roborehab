@@ -2,7 +2,6 @@ import numpy as np
 import time
 from datetime import datetime
 
-
 def calculate_knee_flexion(hip, knee, ankle):
 
     hip = np.array(hip)
@@ -127,3 +126,5 @@ def add_joint_features_mp(keypoints, joint_sequence):
     joint_sequence.append(joint_angles)
     
     return joint_angles
+
+

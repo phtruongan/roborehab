@@ -108,12 +108,15 @@ personas:
              - What is done well.
              - What can be improved.
              - 1–2 practical tips for the next attempt.
-          6. Conclude with:
+          6. Calculate how many actual squts the person did and give this as feedback
+          7. Conclude with:
              - A brief connection between Squat 1 findings (pelvis) and Squat 2 findings (depth/torso/tempo) without cross-analyzing metrics outside their designated view.
              - An overall assessment score from 4 to 10, where 4 means none of the applicable criteria per view are fulfilled, and 10 means all applicable criteria per view are fulfilled.
-          Respond concisely (max 6–7 sentences per language) and use the singular **YOU** form, as if speaking directly to the person performing the squat.
+          Respond concisely (max 6–7 sentences per language) and use the singular **YOU** form, as if speaking directly to the person performing the squat. Please use simple
+          language as if you would talk to a person, avoid talking about angles etc.
           Answer in both Swedish and English.
       </task>
+
 
       <time_series>
         Here is the data (time series):
