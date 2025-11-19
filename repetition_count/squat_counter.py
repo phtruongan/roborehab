@@ -4,6 +4,10 @@ import cv2
 import numpy as np
 from collections import deque
 
+
+#Threshold value for the knee angle
+angle_threshold = 90
+
 model = YOLO('yolo11n-pose.pt')  # load YOLOv11 pose estimation model 
 cap = cv2.VideoCapture(0)
 
@@ -58,34 +62,49 @@ def get_left_joints(frame):
         return left_joints
     return None
 
-def calculate_thigh_angle(hip, knee):
+def calculate_knee_angle(hip, knee, ankle):
     hip = np.array(hip)
     knee = np.array(knee)
-
-    dx = abs(knee[0] - hip[0])  
-    dy = knee[1] - hip[1]  
+    ankle = np.array(ankle)
     
-    if dy >= 0:
-        angle_rad = np.arctan2(dx, dy)
-        angle_deg = np.degrees(angle_rad)
-    else:
-        angle_rad = np.arctan2(dx, -dy)
-        angle_deg = 180.0 - np.degrees(angle_rad)
+    # Vector from knee to hip
+    vector1 = hip - knee
+    # Vector from knee to ankle
+    vector2 = ankle - knee
     
-    return angle_deg
+    # Calculate angle between vectors using dot product
+    dot_product = np.dot(vector1, vector2)
+    magnitude1 = np.linalg.norm(vector1)
+    magnitude2 = np.linalg.norm(vector2)
+    
+    # Avoid division by zero
+    if magnitude1 == 0 or magnitude2 == 0:
+        return 0
+    
+    cos_angle = dot_product / (magnitude1 * magnitude2)
+    # Clamp to [-1, 1] to avoid numerical errors
+    cos_angle = np.clip(cos_angle, -1.0, 1.0)
+    
+    angle_rad = np.arccos(cos_angle)
+    angle_deg = np.degrees(angle_rad)
+    
+    # Convert so that straight leg = 0 degrees
+    knee_angle = 180.0 - angle_deg
+    
+    return knee_angle
 
-def squat_counter(thigh_angle, angle_buffer, squat_counts, in_squat):
-    angle_buffer.append(thigh_angle)
+def squat_counter(knee_angle, angle_buffer, squat_counts, in_squat):
+    angle_buffer.append(knee_angle)
     
     # Only check if we have enough frames
     if len(angle_buffer) == 1:
         mean_angle = np.mean(angle_buffer)
         
-        # Detect squat position (thigh horizontal or beyond)
-        if mean_angle >= 90 and not in_squat:
+        # Detect squat position (knee angle)
+        if mean_angle >= angle_threshold and not in_squat:
             in_squat = True
         
-        # Reset when standing up (thigh almost vertical)
+        # Reset when standing up (leg almost straight)
         elif mean_angle < 20 and in_squat:
             squat_counts += 1
             in_squat = False
@@ -94,7 +113,7 @@ def squat_counter(thigh_angle, angle_buffer, squat_counts, in_squat):
 
 
 #MAIN loop
-thigh_angles = []  # For saving the joint angle time series
+knee_angles = []  # For saving the joint angle time series
 angle_buffer = deque(maxlen=1)  # Buffer for last 5 frames
 squat_counts = 0 #Total number of squats
 in_squat = False  # Track if currently in squat position
@@ -120,15 +139,15 @@ while cap.isOpened():
     
     draw_joints(frame, joints)
     
-    thigh_angle = calculate_thigh_angle(joints[1], joints[2])
-    thigh_angles.append(thigh_angle)
+    knee_angle = calculate_knee_angle(joints[1], joints[2], joints[3])
+    knee_angles.append(knee_angle)
     
-    squat_counts, in_squat = squat_counter(thigh_angle, angle_buffer, squat_counts, in_squat)
+    squat_counts, in_squat = squat_counter(knee_angle, angle_buffer, squat_counts, in_squat)
     
     # Display squat count on frame
     cv2.putText(frame, f"Squats: {squat_counts}", (10, 30), 
                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    cv2.putText(frame, f"Thigh Angle: {thigh_angle:.1f}", (10, 60), 
+    cv2.putText(frame, f"Knee Angle: {knee_angle:.1f}", (10, 60), 
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
 
     frame = cv2.resize(frame, None, fx=1.2, fy=1.2, interpolation = cv2.INTER_NEAREST)
