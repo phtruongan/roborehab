@@ -5,8 +5,11 @@ import numpy as np
 from collections import deque
 
 
-#Threshold value for the knee angle
+#Threshold value for the knee angle (angle between hip-knee and knee-ankle line. 0 degreees means straigt legg)
 angle_threshold = 90
+
+#Threshold value for the slope angle (the slope angle of the hip-knee line. 0 degrees meaans vertical. > 90 degrees means that the hip joint is lower than the knee joint)
+slope_threshold = 90
 
 model = YOLO('yolo11n-pose.pt')  # load YOLOv11 pose estimation model 
 cap = cv2.VideoCapture(0)
@@ -93,15 +96,54 @@ def calculate_knee_angle(hip, knee, ankle):
     
     return knee_angle
 
-def squat_counter(knee_angle, angle_buffer, squat_counts, in_squat):
+def check_hip_depth(hip, knee):
+    """
+    Check if hip is lower than or equal to knee (proper squat depth)
+    Returns True if hip y-coordinate >= knee y-coordinate (lower in image coordinates)
+    """
+    hip = np.array(hip)
+    knee = np.array(knee)
+    
+    # In image coordinates, y increases downward
+    # So hip_y >= knee_y means hip is lower than knee
+    return hip[1] >= knee[1]
+
+def calculate_slope_angle(hip, knee):
+    """
+    Calculate the slope angle of the line between hip and knee
+    Vertical line = 0 degrees, Horizontal line = 90 degrees
+    """
+    hip = np.array(hip)
+    knee = np.array(knee)
+    
+    # Calculate differences
+    dx = knee[0] - hip[0]
+    dy = knee[1] - hip[1]
+    
+    # Avoid division by zero
+    if dx == 0 and dy == 0:
+        return 0
+    
+    # Calculate angle from vertical (0 degrees = vertical, 90 degrees = horizontal)
+    # atan2 gives angle from horizontal, so we convert
+    angle_from_horizontal = np.degrees(np.arctan2(abs(dy), abs(dx)))
+    
+    # Convert to angle from vertical
+    slope_angle = 90.0 - angle_from_horizontal
+    
+    return abs(slope_angle)
+
+def squat_counter(knee_angle, slope_angle, hip_below_knee, angle_buffer, squat_counts, in_squat):
     angle_buffer.append(knee_angle)
     
     # Only check if we have enough frames
     if len(angle_buffer) == 1:
         mean_angle = np.mean(angle_buffer)
         
-        # Detect squat position (knee angle)
-        if mean_angle >= angle_threshold and not in_squat:
+        # Detect proper squat position: knee angle >= 90 AND (hip below knee OR slope angle >= 90)
+        proper_depth = mean_angle >= angle_threshold and (hip_below_knee or slope_angle >= slope_threshold)
+        
+        if proper_depth and not in_squat:
             in_squat = True
         
         # Reset when standing up (leg almost straight)
@@ -142,13 +184,26 @@ while cap.isOpened():
     knee_angle = calculate_knee_angle(joints[1], joints[2], joints[3])
     knee_angles.append(knee_angle)
     
-    squat_counts, in_squat = squat_counter(knee_angle, angle_buffer, squat_counts, in_squat)
+    # Calculate slope angle and check hip depth
+    slope_angle = calculate_slope_angle(joints[1], joints[2])
+    hip_below_knee = check_hip_depth(joints[1], joints[2])
+    
+    squat_counts, in_squat = squat_counter(knee_angle, slope_angle, hip_below_knee, angle_buffer, squat_counts, in_squat)
+    
+    # Determine if current position is proper depth
+    proper_depth = knee_angle >= angle_threshold and (hip_below_knee or slope_angle >= slope_threshold)
+    depth_color = (0, 255, 0) if proper_depth else (0, 0, 255)
+    depth_text = "PROPER DEPTH" if proper_depth else "NOT DEEP ENOUGH"
     
     # Display squat count on frame
     cv2.putText(frame, f"Squats: {squat_counts}", (10, 30), 
                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    cv2.putText(frame, f"Knee Angle: {knee_angle:.1f}", (10, 60), 
+    cv2.putText(frame, f"Knee Angle: {knee_angle:.1f} | Slope: {slope_angle:.1f}", (10, 60), 
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+    cv2.putText(frame, f"Hip Below Knee: {hip_below_knee}", (10, 90), 
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+    cv2.putText(frame, depth_text, (10, 120), 
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, depth_color, 2)
 
     frame = cv2.resize(frame, None, fx=1.2, fy=1.2, interpolation = cv2.INTER_NEAREST)
     cv2.imshow('YoloV11-based Joints', frame)
