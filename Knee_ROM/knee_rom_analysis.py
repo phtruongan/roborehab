@@ -5,8 +5,8 @@ import datetime
 
 model = YOLO('Yolo11_cvrehab_lite.pt')  # load an official model
 
-#cap = cv2.VideoCapture(0)
-cap = cv2.VideoCapture("squat.mkv")
+cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture("knee_bending.mp4")
 
 measuring = False
 left = False
