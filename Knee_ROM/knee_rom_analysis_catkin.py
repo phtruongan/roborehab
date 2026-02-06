@@ -1,12 +1,19 @@
+#https://docs.luxai.com/docs/tutorials/python/python_ros_subscribe
 from ultralytics import YOLO
 import cv2
 import math
 import datetime
+import rospy
+import sys
+from qt_robot_interface.srv import *
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+import cv2
 
 model = YOLO('Yolo11_cvrehab_lite.pt')  # load an official model
 
-#cap = cv2.VideoCapture(0)
-cap = cv2.VideoCapture("knee_bending.mp4")
+cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture("knee_bending.mp4")
 
 measuring = False
 left = False
@@ -128,13 +135,10 @@ def draw_knee_joints(frame, hip, knee, ankle):
 cv2.namedWindow('YOLOv11-based Knee ROM Analysis')
 callback_set = False
 
-while cap.isOpened():
-    ret, frame = cap.read()
-
+def knee_processing(frame):
+    global callback_set
+    global measuring
     measuring = False
-
-    if not ret:
-        break
 
     frame = cv2.resize(frame, None, fx=1.1, fy=1.1, interpolation=cv2.INTER_NEAREST)
 
@@ -149,7 +153,7 @@ while cap.isOpened():
     results = model(frame)
 
     for r in results:
-        keypoints = r.keypoints.xy.cpu().int().numpy()
+        keypoints = r.keypoints.xy.int().numpy()
 
         # Check if any person is detected
         if len(keypoints) == 0:
@@ -222,5 +226,20 @@ while cap.isOpened():
         side_selected = True
         print("Right side selected")
 
-cap.release()
-cv2.destroyAllWindows()
+def image_callback(msg):
+    try:
+        bridge = CvBridge()
+        cv_image = bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        knee_processing(cv_image)
+    except Exception as e:
+        rospy.logerr('Could not convert image: %s', e)
+        return
+
+
+rospy.init_node("vision_node")
+rospy.loginfo("vision_node started!")
+
+rospy.Subscriber('/camera/color/image_raw', Image, image_callback)
+rospy.spin()
+#cap.release()
+#cv2.destroyAllWindows()
