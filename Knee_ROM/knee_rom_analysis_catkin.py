@@ -1,4 +1,4 @@
-#https://docs.luxai.com/docs/tutorials/python/python_ros_subscribe
+#!/usr/bin/env python3
 from ultralytics import YOLO
 import cv2
 import math
@@ -10,7 +10,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
 
-model = YOLO('Yolo11_cvrehab_lite.pt')  # load an official model
+model = YOLO('/home/qtrobot/catkin_ws/src/knee_rom/Yolo11_cvrehab_lite.pt')  # load an official model
 
 #cap = cv2.VideoCapture(0)
 #cap = cv2.VideoCapture("knee_bending.mp4")
@@ -20,6 +20,9 @@ left = False
 side_selected = False
 
 fNum = 0
+
+#Saved location for measuremtns
+save_path = "/home/qtrobot/Desktop/Measurements/Measurements.txt"
 
 def get_distance(pos1, pos2):
     dist = math.sqrt((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2)
@@ -49,7 +52,7 @@ def choose_side_with_buttons(event, x, y, flags, param):
         elif get_distance([x, y], save_button_center) < 50:
             # Save button clicked
             if param.get('measuring') and param.get('knee_string'):
-                save_value(param['knee_string'], './Measurements/Measurements.txt')
+                save_value(param['knee_string'], save_path)
                 print("Measurement saved!")
 
 
@@ -221,7 +224,7 @@ def knee_processing(frame):
     # Save with Enter or S key
     if key == 13 or key == ord('s') or key == ord('S'):
         if measuring:
-            save_value(knee_string, './Measurements/Measurements.txt')
+            save_value(knee_string, save_path)
             print("Measurement saved!")
 
     # Select left side with L key
