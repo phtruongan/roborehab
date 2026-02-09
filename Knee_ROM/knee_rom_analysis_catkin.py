@@ -12,7 +12,7 @@ import cv2
 
 model = YOLO('Yolo11_cvrehab_lite.pt')  # load an official model
 
-cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture(0)
 #cap = cv2.VideoCapture("knee_bending.mp4")
 
 measuring = False
@@ -27,7 +27,8 @@ def get_distance(pos1, pos2):
 
 
 def choose_side_with_buttons(event, x, y, flags, param):
-    global left, side_selected
+    global left
+    global side_selected
 
     if event == cv2.EVENT_LBUTTONDOWN:
         # Get frame dimensions from param
@@ -53,6 +54,7 @@ def choose_side_with_buttons(event, x, y, flags, param):
 
 
 def draw_side_buttons(frame, show_save_button=False):
+    global left
     # Left button (top right)
     left_button_center = [frame.shape[1] - 100, 50]
     cv2.circle(frame, left_button_center, 40, (0, 255, 0) if left and side_selected else (255, 255, 255), -1 if left and side_selected else 3)
@@ -132,14 +134,20 @@ def draw_knee_joints(frame, hip, knee, ankle):
 
 
 # Create window and set mouse callback
-cv2.namedWindow('YOLOv11-based Knee ROM Analysis')
+#cv2.namedWindow('YOLOv11-based Knee ROM Analysis')
 callback_set = False
-
+first = True
 def knee_processing(frame):
     global callback_set
     global measuring
-    measuring = False
+    global side_selected
+    global first
+    global left
+    if first:
+        cv2.namedWindow('YOLOv11-based Knee ROM Analysis')
+        first = False
 
+    measuring = False
     frame = cv2.resize(frame, None, fx=1.1, fy=1.1, interpolation=cv2.INTER_NEAREST)
 
     # Set mouse callback once with frame dimensions
@@ -201,12 +209,14 @@ def knee_processing(frame):
     cv2.setMouseCallback('YOLOv11-based Knee ROM Analysis', choose_side_with_buttons, 
                         {'width': frame.shape[1], 'height': frame.shape[0], 'measuring': measuring, 'knee_string': knee_string})
 
+    print("Image show")
     cv2.imshow('YOLOv11-based Knee ROM Analysis', frame)
 
     key = cv2.waitKey(1)
 
     if key == 27:  # ESC key
-        break
+        rospy.signal_shutdown("Exiting")
+        sys.exit()
 
     # Save with Enter or S key
     if key == 13 or key == ord('s') or key == ord('S'):
